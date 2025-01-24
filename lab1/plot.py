@@ -4,10 +4,6 @@ import numpy as np
 
 sample_period, data = raspi_import('out-2025-01-20-14.01.07.bin')
 
-# print(data.shape)
-# print(sample_period)
-#print(np.mean(data[:, 0]), (2**12-1)/2+16.5)
-
 data -= (2**12-1)/2 #+16.5 # subtracting offset
 data = data*(3.3/((2**12)-1)) # scaling y-axis to Volt
 
