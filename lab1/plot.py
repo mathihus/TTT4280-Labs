@@ -26,7 +26,7 @@ plt.show()
 
 N = 2**21 # setting FFT length
 
-# N = data_length
+N = data_length
 
 Sdb = np.zeros((N, data_channels)) # making empty array to put fft values into
 
@@ -37,7 +37,7 @@ fig1, ax1 = plt.subplots(data_channels, 1)
 fig1.tight_layout(pad=0.5)
 
 for i in range(data_channels): 
-    data[:, i] = w*data[:, i] # using hanning window on channel i
+    # data[:, i] = w*data[:, i] # using hanning window on channel i
 
     fft = abs(np.fft.fft(data[:, i], N)) # reshaping data to be an 1d array and taking fft
     fft = abs(np.fft.fftshift(fft)) # shifting spectrum and taking absolute value 
@@ -50,10 +50,11 @@ for i in range(data_channels):
 plt.show()
 
 for i in range(data_channels):
-    B = 5
-    signal_power = np.mean(Sdb[int((N)*(sample_period*(1000-(B/2)) + 1/2)):int((N)*(sample_period*(1000+(B/2)) + 1/2)), i])
+    B = 3
+    f = 1000
+    signal_power = np.mean(Sdb[int((N)*(sample_period*(f-(B/2)) + 1/2)):int((N)*(sample_period*(f+(B/2)) + 1/2)), i])
 
-    noise_power = (np.mean(Sdb[int(N/2):int((N)*(sample_period*(1000-(B/2)) + 1/2)), i]) + np.mean(Sdb[int((N)*(sample_period*(1000+(B/2)) + 1/2)):, i]))/2
+    noise_power = (np.mean(Sdb[int(N/2):int((N)*(sample_period*(f-(B/2)) + 1/2)), i]) + np.mean(Sdb[int((N)*(sample_period*(f+(B/2)) + 1/2)):, i]))/2
 
     print("Signal_rms² =", signal_power)
     print("Noise_rms² =", noise_power)
