@@ -50,11 +50,15 @@ for i in range(data_channels):
 plt.show()
 
 for i in range(data_channels):
-    B = 3
-    f = 1000
-    signal_power = np.mean(Sdb[int((N)*(sample_period*(f-(B/2)) + 1/2)):int((N)*(sample_period*(f+(B/2)) + 1/2)), i])
+    f = np.argmax(Sdb[int(N/2):, i])
+    print(f"f = {f}Hz")
+    B = f/10
 
-    noise_power = (np.mean(Sdb[int(N/2):int((N)*(sample_period*(f-(B/2)) + 1/2)), i]) + np.mean(Sdb[int((N)*(sample_period*(f+(B/2)) + 1/2)):, i]))/2
+    # signal_power = np.mean(Sdb[int((N)*(sample_period*(f-(B/2)) + 1/2)):int((N)*(sample_period*(f+(B/2)) + 1/2)), i])
+    signal_power = 0 # because of the normalisation of PDS
+    
+    # taking the max value from the PDS from 10 -> f-(B/2) and f+(B/2) -> 2*f-(B/2). Only looking to 2*f-(B/2) to neglect the harmonic frequencies.
+    noise_power = max(max(Sdb[int(N/2)+10:int((N)*(sample_period*(f-(B/2)) + 1/2)), i]), max(Sdb[int((N)*(sample_period*(f+(B/2)) + 1/2)):int((N)*(sample_period*(2*f-(B/2)) + 1/2)), i]))
 
     print("Signal_rms² =", signal_power)
     print("Noise_rms² =", noise_power)
