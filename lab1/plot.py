@@ -57,7 +57,7 @@ plt.show()
 
 for i in range(data_channels):
     f = np.argmax(Sdb[int(N/2):, i]) # finding the frequency of the signal. Only works with no zero-padding, else enter it manually.
-    f = 1000
+    # f = 1000
     print(f"f = {f}Hz")
     B = f/10 # defining the bandwidth of the desired frequency for SNR calculations
 
