@@ -12,26 +12,50 @@ skip_samples = 20
 data_length = data.shape[0]-skip_samples # getting the length of samples
 data_channels = 3 # getting amount of channels
 
+signal1, signal2, signal3 = data[skip_samples:, 0], data[skip_samples:, 1], data[skip_samples:, 2]
+
+# max_lag = 6
+# n_lag = 5
+# signal2 = data[skip_samples:-n_lag, 0]
+# signal1 = data[skip_samples+n_lag:, 0]
+# signal3 = data[skip_samples+n_lag:, 0]
+
+# def lag(signal1, signal2):
+#     cross_corr = np.zeros(2*max_lag+1)
+
+#     for i in range(len(cross_corr)):
+#         cross_corr[i] = np.correlate(signal1[i:-len(cross_corr)+i], signal2[:-len(cross_corr)])        
+#         # print(np.correlate(signal1[i:len(signal1)-len(cross_corr)+i], signal2[:(len(signal2)-len(cross_corr))]))
+
+#     return -np.argmax(cross_corr) # returning the lag that gives the highes crosscorrolation
+
+def lag(signal1, signal2):
+    lag_estimate = (np.argmax(np.correlate(signal1, signal2, "full")))-len(signal1)+1
+    return -lag_estimate
+
+# corr_lag = lag(signal1, signal2, max_lag)
+# print(corr_lag, corr_lag*sample_period)
+
+def angle(signal1, signal2, signal3):
+    n21 = lag(signal2, signal1)
+    n31 = lag(signal3, signal1)
+    n32 = lag(signal3, signal2)
+
+    print(n21, n31, n32)
+
+    angle_estimate = np.arctan(np.sqrt(3)*((n31+n21)/(n31-n21+2*n32)))
+
+    if angle_estimate < 0:
+        angle_estimate += 2*np.pi
+
+    return angle_estimate
+
+angle_estimate = angle(signal1, signal2, signal3)
+print(angle_estimate*180/np.pi)
+
+
 n = np.arange(data_length) # making a list with same length as data to be the x-axis of plotting later
 time = n*(sample_period) # scaling x-axis to time in seconds
-
-lag = 3
-max_lag = 6
-
-signal1 = data[skip_samples:data.shape[0]-lag, 0]
-signal2 = data[skip_samples+lag:, 0]
-
-def lag(signal1, signal2, max_lag):
-    cross_corr = np.zeros(2*max_lag+1)
-
-    for i in range(len(cross_corr)):
-        cross_corr[i] = np.correlate(signal1[i:len(signal1)-len(cross_corr)+i], signal2[:(len(signal2)-len(cross_corr))])
-        
-        # print(np.correlate(signal1[i:len(signal1)-len(cross_corr)+i], signal2[:(len(signal2)-len(cross_corr))]))
-    return np.argmax(cross_corr)
-
-print(lag(signal1, signal2, max_lag)*sample_period)
-
 
 fig, ax = plt.subplots(data_channels, 1) # setting up figure to put subplots of time series
 fig.tight_layout(pad=0.5)
@@ -44,7 +68,3 @@ for i in range(data_channels): # Plotting data channel i
     ax[i].set_ylabel("Amplitude [V]")
     ax[i].set_xlabel("Tid [s]")
 plt.show()
-
-
-
-    
