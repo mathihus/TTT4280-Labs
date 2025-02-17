@@ -67,8 +67,10 @@ def angle(signal1, signal2, signal3):
 
     # angle_estimate = np.pi - angle_estimate
 
-    if angle_estimate < 0 or m.copysign(1, angle_estimate) < 0:
+    if angle_estimate < 0:
         angle_estimate += 2*np.pi
+    elif m.copysign(1, angle_estimate) < 0:
+        angle_estimate += np.pi
 
     return angle_estimate
 
