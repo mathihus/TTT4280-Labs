@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math as m
 
-sample_period, data = raspi_import('out-2025-02-17-11.16.35.bin') # converting binary file to array with raspi_import.py
+sample_period, data = raspi_import('data/225/225_deg_2.bin') # converting binary file to array with raspi_import.py
 
 data -= (2**12-1)/2 #+16.5 # subtracting offset
 data = data*(3.3/((2**12)-1)) # scaling y-axis to Volt
@@ -13,7 +13,7 @@ skip_samples = 3000
 data_length = data.shape[0]-skip_samples # getting the length of samples
 data_channels = 3 # getting amount of channels
 
-signal1, signal2, signal3 = data[skip_samples:, 2], data[skip_samples:, 0], data[skip_samples:, 1]
+signal1, signal2, signal3 = data[skip_samples:, 2], data[skip_samples:, 1], data[skip_samples:, 0]
 
 # max_lag = 6
 # n_lag = 5
@@ -41,10 +41,11 @@ def lag(signal1, signal2):
     x = np.arange(lag_n-10, lag_n+10)
     interpcorr = np.interp(x, np.arange(len(corr)), corr)
 
-    print(interpcorr)
+    # print(interpcorr)
 
     lag_estimate = (np.argmax(interpcorr))-len(x)/2+1
-    print(lag_estimate)
+    # lag_estimate = (np.argmax(corr))-data_length+1
+    # print(lag_estimate)
 
     plt.plot(x, interpcorr)
     return lag_estimate
