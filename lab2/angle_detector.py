@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math as m
 
-sample_period, data = raspi_import('data/225/225_deg_2.bin') # converting binary file to array with raspi_import.py
+deg = 45
+
+sample_period, data = raspi_import(f'data/{deg}/{deg}_deg_4.bin') # converting binary file to array with raspi_import.py
 
 data -= (2**12-1)/2 #+16.5 # subtracting offset
 data = data*(3.3/((2**12)-1)) # scaling y-axis to Volt
