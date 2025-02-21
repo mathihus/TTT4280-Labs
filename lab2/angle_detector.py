@@ -60,14 +60,20 @@ def angle_detect(deg, i, plot=False):
     
     return abs(angle_estimate*180/np.pi) # taking absolute angle and converitng to degrees from rad
 
-angles = np.zeros((8, 5))
 
-for i in range(8):
-    for n in range(5):
-        # print(45*i, "-", angle_detect(45*i, 2))
-        angles[i, n] = angle_detect(45*i, n+1)
+def create_angle_matrix():
+    angles = np.zeros((8, 5))
 
-print(angles)
+    for i in range(8):
+        for n in range(5):
+            angles[i, n] = angle_detect(45*i, n+1)
+
+    np.savetxt("angle_estimates_matrix.csv", angles, delimiter=";")
+    return angles
+
+angles = create_angle_matrix()
+
+
 
 
 
