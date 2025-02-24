@@ -19,7 +19,7 @@ def angle(signal1, signal2, signal3, plot=False):
     n31 = lag(signal3, signal1, "n31")
     n32 = lag(signal3, signal2, "n32")
 
-    # print(f"n21 = {n21}, n31 = {n31}, n32 = {n32}")
+    print(f"n21 = {n21}, n31 = {n31}, n32 = {n32}")
 
     if plot:
         plt.legend()
@@ -60,7 +60,7 @@ def angle_detect(deg, i, plot=False):
 
     angle_estimate = angle(signal1, signal2, signal3, plot)
     
-    return abs(angle_estimate*180/np.pi) # taking absolute angle and converitng to degrees from rad
+    return (angle_estimate*180/np.pi) # taking absolute angle and converitng to degrees from rad
 
 
 def create_angle_matrix():
@@ -73,7 +73,9 @@ def create_angle_matrix():
     np.savetxt("angle_estimates_matrix.csv", angles, delimiter=";")
     return angles
 
-create_angle_matrix()
+# create_angle_matrix()
 
-# for i in range(8):
-#     print(f"Actual angle: {45*i} - Meassured angle: {angle_detect(45*i, 2)} \n")
+# angle_detect(180, 2, True)
+
+for i in range(8):
+    print(f"Actual angle: {45*i} - Meassured angle: {angle_detect(45*i, 2)} \n")
