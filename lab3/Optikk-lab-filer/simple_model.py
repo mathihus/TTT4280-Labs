@@ -22,6 +22,7 @@ mua_other = 25 # Background absorption due to collagen, et cetera
 mua_blood = (mua_blood_oxy(wavelength)*oxy # Absorption due to
             + mua_blood_deoxy(wavelength)*(1-oxy)) # pure blood
 mua = mua_blood*bvf + mua_other
+mua2 = mua_blood*bvf*100 + mua_other
 
 # reduced scattering coefficient ($\mu_s^\prime$ in lab text)
 # the numerical constants are thanks to N. Bashkatov, E. A. Genina and
@@ -38,4 +39,36 @@ def pen_depth():
     pen = np.sqrt(1/(3*(musr+mua)*mua))
     return pen
 
-print(pen_depth())
+print("\na) \nPenetrasjonsdybde i mm for R, G og B:", pen_depth()*1000)
+
+
+def T(z, m):
+    C = np.sqrt(3*m*(musr+m))
+    return np.exp(-C*z)
+
+d = 0.012 # fingerdybden i meter
+print("\nb) \nTransmittans med tykkelse", d, "i prosent for R, G og B:", T(d, mua)*100)
+
+print("Forventer at det meste av lyset for hver bølgelengde penetrerer ned til penetrasjonsdybden eller kortere før den reflekteres. Det som går lenger dempes fort. Se oppgave a :)")
+
+def R(z):
+    C = np.sqrt(3*mua*(musr+mua))
+    return (1/(pen_depth()*mua))*np.exp(-2*C*z)
+
+# print(R(pen_depth()))
+
+def K(høy, lav):
+    return abs(høy-lav)/lav
+
+bd = 300*1e-6
+T_høy = T(bd, mua2)
+T_lav = T(bd, mua)
+
+print("\nd) \nTransmittans blodåre i prosent for R, G og B:", T_høy*100)
+print("Transmittans vev i prosent for R, G og B:", T_lav*100)
+print("Kontrast K =", K(T_høy, T_lav))
+
+print("\ne) \nGrønn kanal vil være best ettersom den har har tilnærmet samme kontrast som blå K = 0.99 og er det mest sensitive kanalen på rasberry pi kameraet. En høy K vil gi en høy pulsamplitude.")
+
+print("\n2.2 \nSNR i bildekvalitetssammenheng. Snittsignalnivå over bildet delt på standardavviket til støyen i bildet, mu_signal1/sigma_imagenoise. Uttrykker generell bildekvalitet. Interessesignalet er pikselverdien. \n\nSNR i pulssammenheng. Maksamplitude i pulssignalet delt på standardavviket til støyen i pulssignalet, mu_signal2/sigma_pulsenoise. Uttrykker kvaliteten på pulsutslaget, hvor begravd pulssignalet er i støy, hvor lett det er å estimere puls. Interessesignalet er pikselvariasjonen knyttet til puls.")
+print("\nVi antar at støyen har høyere frekvens enn en realistisk pulsmåling, og lavere amplitude. Ved å ta FFT kan man da kutte ut frekvensene som ikke er realistiske, og se på maksimalverdien innenfor dette området.")
