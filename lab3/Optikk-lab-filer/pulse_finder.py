@@ -7,7 +7,7 @@ G = []
 B = []
 
 # Reading txt file and splitting data to own lists
-with open("data/opptak4.txt") as file:
+with open("data/ref6.txt") as file:
     for line in file:
         line = line.split()
         
@@ -34,8 +34,8 @@ def find_pulse(signal, N, plot=False):
     pulse_spectrum = abs(pulse_spectrum[:N//2])
 
     if plot:
-        # plt.plot(df, 20*np.log10(pulse_spectrum/max(pulse_spectrum)))
-        # plt.xlim(40, 240)
+        #plt.plot(df, 20*np.log10(pulse_spectrum/max(pulse_spectrum)))
+        #plt.xlim(40, 240)
         plt.plot(t, signal)
         plt.show()
 
@@ -45,7 +45,7 @@ def find_pulse(signal, N, plot=False):
     Sdb = 20*np.log10(pulse_spectrum/max(pulse_spectrum))
 
     signal_SNR = SNR(Sdb, freq_index, N//256)
-    print(signal_SNR)
+    #print("SNR: ", signal_SNR)
 
     return detected_freq
 

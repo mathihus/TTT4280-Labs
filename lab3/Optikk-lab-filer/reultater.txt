@@ -14,8 +14,14 @@ opptak9: , ved håndledd
 opptak12: , panne med dårlig lys
 
 Lyskilde 2 magnus telefon
+
 Transmittans:
 opptak6: , på linsa med dårlig lysforhold
+trans 1-3
+hoypulstrans 1 og 2
+
 
 Reflektans:
 opptak5: , litt over linsa med dårlig lysforhold (naturlig lys) (trash måling)
+ref 2,3 uten drop
+ref 4,5,6 med lite drop
