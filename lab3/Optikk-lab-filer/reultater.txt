@@ -1,0 +1,19 @@
+Lyskilde 1 mathias telefon
+Transmittans:
+opptak1: målt=79.54 faktisk=77, på linsa
+opptak4: målt=78.9, faktisk=76, på linsa med dårlig lysforhold
+opptak8: , over linsa
+opptak10: , på linsa med varm finger
+
+Reflektans:
+opptak2: målt=80.2 faktisk=77, litt over linsa
+opptak3: , litt over linsa med dårlig lysforhold (naturlig lys)
+opptak7: , litt over linsa med 2 fingre
+opptak9: , ved håndledd
+
+Lyskilde 2 magnus telefon
+Transmittans:
+opptak6: , på linsa med dårlig lysforhold
+
+Reflektans:
+opptak5: , litt over linsa med dårlig lysforhold (naturlig lys) (trash måling)
