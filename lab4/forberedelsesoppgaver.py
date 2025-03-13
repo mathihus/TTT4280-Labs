@@ -18,9 +18,15 @@ def sigma(a, f_0):
     sigma = (4*np.pi*((a)**4))/(4*(bølgelengde**2))
     return sigma
 
+def R(phi, f_0):
+    bølgelengde  = c/(f_0)
+    R = phi*bølgelengde/(2*2*np.pi)
+    return R 
+
 print("foreberedelse 2.1.1: ",dopplerskift(25))
 print("foreberedelse 2.1.2: ",måleoppløsning(1))
 print("foreberedelse 2.1.3: ",antennevinning(12, 80))
 print("foreberedelse 2.1.4: ",sigma(0.155, (24*(10**9))))
+
 
 
