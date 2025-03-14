@@ -28,5 +28,7 @@ print("foreberedelse 2.1.2: ",måleoppløsning(1))
 print("foreberedelse 2.1.3: ",antennevinning(12, 80))
 print("foreberedelse 2.1.4: ",sigma(0.155, (24*(10**9))))
 
+print("R =", R(2*np.pi, 24.13*10**9), "m")
+
 
 
