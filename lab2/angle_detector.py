@@ -29,8 +29,8 @@ def angle(signal1, signal2, signal3, plot=False):
 
     if (n31-n21+2*n32) < 0:
         angle_estimate += np.pi
-    elif angle_estimate < 0:
-        angle_estimate += 2*np.pi
+    if angle_estimate > np.pi:
+        angle_estimate -= 2*np.pi
 
     return angle_estimate
 
