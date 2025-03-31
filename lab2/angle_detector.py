@@ -93,9 +93,12 @@ def all_possible_lags(max_lags):
     for i in range(-max_lags, max_lags+1):
         for n in range(-max_lags, max_lags+1):
             for k in range(-max_lags, max_lags+1):
-                a = lag_to_angle(i, n, k)
-                angles.append(a)
-                # print(i, n, k, ":", a)
+                try:
+                    a = lag_to_angle(i, n, k)
+                    angles.append(a)
+                    # print(i, n, k, ":", a)
+                except:
+                    pass
     
     return set(angles)
 
@@ -115,13 +118,13 @@ def create_angle_matrix_2():
     return angles
 
 
-angles = all_possible_lags(3)
+angles = all_possible_lags(4)
 print(angles)
 
 
 # create_angle_matrix_2()
 
-print(angle_detect(90, 5))#, True)
+# print(angle_detect(90, 5))#, True)
 
 # for i in range(8):
 #     print(f"Actual angle: {45*i} - Meassured angle: {angle_detect(45*i, 2)} \n")
