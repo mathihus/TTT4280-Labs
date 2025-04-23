@@ -1,28 +1,46 @@
 from raspi_import import raspi_import
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.interpolate as scp
 
-def lag(signal1, signal2, mic):
+def lag(signal1, signal2, mic, interp=1):
     corr = np.correlate(signal1, signal2, "full")
 
     lag_n = len(signal1)
-    x = np.arange(lag_n-50, lag_n+50)
-    interpcorr = np.interp(x, np.arange(len(corr)), corr)
 
-    lag_estimate = (np.argmax(interpcorr))-len(x)//2+1
+    if interp==1:
+        lag_estimate = (np.argmax(corr))-len(corr)//2
 
-    plt.plot(x, interpcorr, label=mic)
-    return -lag_estimate
+        plt.plot(-(np.arange(len(corr))-lag_n+1), corr, ".", label=mic)
+        plt.title("Krysskorrelasjon uten interpolasjon")
+    else:
+        x = np.arange(len(corr))
+        x_new = np.linspace(0, len(corr)-1, len(corr)*interp)
 
-def angle(signal1, signal2, signal3, plot=False):
-    n21 = lag(signal2, signal1, r"$n_{21}$")
-    n31 = lag(signal3, signal1, r"$n_{31}$")
-    n32 = lag(signal3, signal2, r"$n_{32}$")
+        interp_corr = scp.interp1d(x, corr, kind='cubic')
+
+
+        interpcorr = interp_corr(x_new)
+
+        lag_estimate = (np.argmax(interpcorr))-len(interpcorr)//2
+
+        plt.plot(-(x_new+1-lag_n), interpcorr, ".", label=mic)
+        plt.title(f"Krysskorrelasjon med {interp}x interpolasjon")
+    
+    plt.xlim((-10, 10))
+    return -lag_estimate/interp
+
+def angle(signal1, signal2, signal3, plot=False, interpolation_factor=1):
+    n21 = lag(signal2, signal1, r"$n_{21}$", interp=interpolation_factor)
+    n31 = lag(signal3, signal1, r"$n_{31}$", interp=interpolation_factor)
+    n32 = lag(signal3, signal2, r"$n_{32}$", interp=interpolation_factor)
 
     print(f"n21 = {n21}, n31 = {n31}, n32 = {n32}")
 
     if plot:
         plt.legend()
+        plt.xlabel("Punktprøve")
+        plt.ylabel("Korrelasjon")
         plt.show()
 
     angle_estimate = -np.arctan(np.sqrt(3)*((n31+n21)/(n31-n21+2*n32)))
@@ -34,7 +52,7 @@ def angle(signal1, signal2, signal3, plot=False):
 
     return angle_estimate
 
-def angle_detect(deg, i, plot=False):
+def angle_detect(deg, i, plot=False, interpolation_factor=1):
     sample_period, data = raspi_import(f'data/{deg}/{deg}_deg_{i}.bin') # converting binary file to array with raspi_import.py
 
     data -= (2**12-1)/2 # subtracting offset
@@ -55,25 +73,27 @@ def angle_detect(deg, i, plot=False):
             ax[i].plot(time, data[skip_samples:end_samples, i])
             ax[i].set_title(f"Mikrofon {i+1}:")
             ax[i].set_ylim(-2, 2)
+            ax[i].set_xlim(0.55, 0.70)
             ax[i].set_ylabel("Amplitude [V]")
             ax[i].set_xlabel("Tid [s]")
+
         plt.show()
 
-    angle_estimate = angle(signal1, signal2, signal3, plot)
+    angle_estimate = angle(signal1, signal2, signal3, plot, interpolation_factor)
     
     return (angle_estimate*180/np.pi) # taking absolute angle and converitng to degrees from rad
 
 
-def create_angle_matrix():
+def create_angle_matrix(interpolation_factor=1):
 
     angles = np.zeros((8, 5))
 
     for i in range(8):
         for n in range(5):
-            a = angle_detect(45*i, n+1)
+            a = angle_detect(45*i, n+1, interpolation_factor=interpolation_factor)
             angles[i, n] = a
 
-    np.savetxt("angle_estimates_matrix.csv", angles, delimiter=";")
+    np.savetxt(f"angle_estimates_matrix_{interpolation_factor}.csv", angles, delimiter=";")
     return angles
 
 def lag_to_angle(lag1, lag2, lag3):
@@ -82,7 +102,7 @@ def lag_to_angle(lag1, lag2, lag3):
 
     if (lag2-lag1+2*lag3) < 0:
         angle_estimate += np.pi
-    if angle_estimate > 1.1*np.pi:
+    if angle_estimate > 1.2*np.pi:
         angle_estimate -= 2*np.pi
 
     return angle_estimate*180/np.pi
@@ -103,14 +123,14 @@ def all_possible_lags(max_lags):
     return set(angles)
 
 
-def create_angle_matrix_2():
+def create_angle_matrix_2(interpolation_factor=1):
     d = 2
 
     angles = np.zeros((8, d*5))
 
     for i in range(8):
         for n in range(0, d*5, d):
-            a = angle_detect(45*i, n//d+1)
+            a = angle_detect(45*i, n//d+1, interpolation_factor=interpolation_factor)
             for k in range(d):
                 angles[i, n+k] = a
 
@@ -118,13 +138,17 @@ def create_angle_matrix_2():
     return angles
 
 
-angles = all_possible_lags(4)
-print(angles)
+# angles = all_possible_lags(4)
+# print(angles)
 
+# create_angle_matrix(1)
+# create_angle_matrix(4)
+# create_angle_matrix(8)
 
-# create_angle_matrix_2()
-
-# print(angle_detect(90, 5))#, True)
+print(angle_detect(90, 3, True, 1))
+print(angle_detect(90, 3, True, 2))
+print(angle_detect(90, 3, True, 4))
+print(angle_detect(90, 3, True, 8))
 
 # for i in range(8):
 #     print(f"Actual angle: {45*i} - Meassured angle: {angle_detect(45*i, 2)} \n")
