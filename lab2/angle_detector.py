@@ -6,47 +6,58 @@ import scipy.interpolate as scp
 def lag(signal1, signal2, mic, interp=1):
     corr = np.correlate(signal1, signal2, "full")
 
-    lag_n = len(signal1)
+    lag_n = len(signal1)  
 
     if interp==1:
+        # finding lag estimate from the correlation
         lag_estimate = (np.argmax(corr))-len(corr)//2
 
         plt.plot(-(np.arange(len(corr))-lag_n+1), corr, ".", label=mic)
         plt.title("Krysskorrelasjon uten interpolasjon")
     else:
+        # making new scaled x axis with interp times more points
         x = np.arange(len(corr))
         x_new = np.linspace(0, len(corr)-1, len(corr)*interp)
+        # x_new = np.arange(len(corr)*interp)
 
+        # making interpolated crosscorrelation sequence
         interp_corr = scp.interp1d(x, corr, kind='cubic')
-
-
         interpcorr = interp_corr(x_new)
 
-        lag_estimate = (np.argmax(interpcorr))-len(interpcorr)//2
+        # finding lag estimate from the interpolated correlation
+        lag_estimate = (np.argmax(interpcorr))-len(interpcorr)//2 +1
 
-        plt.plot(-(x_new+1-lag_n), interpcorr, ".", label=mic)
+        plt.plot(-(x_new+1-lag_n)*interp, interpcorr, ".", label=mic)
         plt.title(f"Krysskorrelasjon med {interp}x interpolasjon")
     
-    plt.xlim((-10, 10))
-    return -lag_estimate/interp
+    plt.xlim((-8*interp, 8*interp))
+    plt.ylim(0, 200)
+    return -lag_estimate
 
 def angle(signal1, signal2, signal3, plot=False, interpolation_factor=1):
-    n21 = lag(signal2, signal1, r"$n_{21}$", interp=interpolation_factor)
-    n31 = lag(signal3, signal1, r"$n_{31}$", interp=interpolation_factor)
-    n32 = lag(signal3, signal2, r"$n_{32}$", interp=interpolation_factor)
+    # Finding all the lags
+    n21 = lag(signal2, signal1, r"$r_{31}$", interp=interpolation_factor)
+    n31 = lag(signal3, signal1, r"$r_{21}$", interp=interpolation_factor)
+    n32 = lag(signal3, signal2, r"$r_{32}$", interp=interpolation_factor)
 
     print(f"n21 = {n21}, n31 = {n31}, n32 = {n32}")
 
+    # plotting the cross correlations if plot=True
     if plot:
         plt.legend()
         plt.xlabel("Punktprøve")
         plt.ylabel("Korrelasjon")
         plt.show()
 
+    # calculating angle
     angle_estimate = -np.arctan(np.sqrt(3)*((n31+n21)/(n31-n21+2*n32)))
 
+
+    # adding pi if denominator is negative
     if (n31-n21+2*n32) < 0:
         angle_estimate += np.pi
+
+    # allowing angles slightly higher than pi for statistical reasons
     if angle_estimate > 1.1*np.pi:
         angle_estimate -= 2*np.pi
 
@@ -73,13 +84,13 @@ def angle_detect(deg, i, plot=False, interpolation_factor=1):
             ax[i].plot(time, data[skip_samples:end_samples, i])
             ax[i].set_title(f"Mikrofon {i+1}:")
             ax[i].set_ylim(-2, 2)
-            ax[i].set_xlim(0.55, 0.70)
+            # ax[i].set_xlim(0.70, 0.75)
             ax[i].set_ylabel("Amplitude [V]")
             ax[i].set_xlabel("Tid [s]")
 
         plt.show()
 
-    angle_estimate = angle(signal1, signal2, signal3, plot, interpolation_factor)
+    angle_estimate = angle(signal1, signal2, signal3, plot, interpolation_factor) 
     
     return (angle_estimate*180/np.pi) # taking absolute angle and converitng to degrees from rad
 
@@ -95,6 +106,8 @@ def create_angle_matrix(interpolation_factor=1):
 
     np.savetxt(f"angle_estimates_matrix_{interpolation_factor}.csv", angles, delimiter=";")
     return angles
+
+
 
 def lag_to_angle(lag1, lag2, lag3):
     
@@ -145,10 +158,10 @@ def create_angle_matrix_2(interpolation_factor=1):
 # create_angle_matrix(4)
 # create_angle_matrix(8)
 
-print(angle_detect(90, 3, True, 1))
-print(angle_detect(90, 3, True, 2))
-print(angle_detect(90, 3, True, 4))
-print(angle_detect(90, 3, True, 8))
+print(angle_detect(45, 4, True, 1))
+# print(angle_detect(90, 3, True, 2))
+# print(angle_detect(90, 3, True, 4))
+print(angle_detect(90, 5, True, 8))
 
 # for i in range(8):
 #     print(f"Actual angle: {45*i} - Meassured angle: {angle_detect(45*i, 2)} \n")
